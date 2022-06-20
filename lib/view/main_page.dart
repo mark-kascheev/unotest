@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unotest/bloc/quiz_creation_bloc.dart';
+import 'package:unotest/domain/model/question.dart';
 import 'package:unotest/view/question_page.dart';
 
 class MainPage extends StatelessWidget {
@@ -46,7 +47,7 @@ class _Questions extends StatelessWidget {
             builder: (context, state) {
           return ListView(
             children: [
-              ...state.quiz.questions.map((e) => _QuestionItem()).toList(),
+              ...state.quiz.questions.map((question) => _QuestionItem(question)).toList(),
               const _AddQuestionButton()
             ],
           );
@@ -57,13 +58,14 @@ class _Questions extends StatelessWidget {
 }
 
 class _QuestionItem extends StatelessWidget {
-  const _QuestionItem({Key? key}) : super(key: key);
+  final Question question;
+  const _QuestionItem(this.question);
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text('New question'),
+        Text('${question.statement}|||${question.id}'),
       ],
     );
   }

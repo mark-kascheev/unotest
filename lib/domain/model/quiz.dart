@@ -1,27 +1,21 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:unotest/domain/model/question.dart';
+import 'package:flutter/foundation.dart';
+
+part 'quiz.freezed.dart';
 
 @freezed
-class Quiz {
-  final String id;
-  final String title;
-  final String description;
-  final List<Question> questions;
+class Quiz with _$Quiz{
+  const factory Quiz(
+      {required final String id,
+        required final String title,
+        required final String description,
+        required final List<Question> questions
+        }) = _Quiz;
 
-  Quiz._(
-      {required this.id,
-      required this.title,
-      this.description = '',
-      required this.questions});
-
-  Quiz.empty() :
-    id = '',
-    title = '',
-    description = '',
-    questions = List.empty(growable: true);
-}
-
-extension QuizUtils on Quiz {
-  Quiz copyWith({String? title, String? description, List<Question>? questions}) =>
-    Quiz._(id: id, title: title ?? this.title, questions: questions ?? this.questions);
+  factory Quiz.empty() => _Quiz(
+    id: DateTime.now().millisecondsSinceEpoch.toString(),
+    title: '',
+    description: '',
+    questions: List.empty(growable: true));
 }

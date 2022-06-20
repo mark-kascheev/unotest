@@ -25,7 +25,7 @@ class QuizCreationBloc extends Bloc<QuizCreationEvent, QuizCreationState> {
 
   void _saveNewQuestion(QuizCreationQuestionSaved event, Emitter emit) {
     state.quiz.questions.add(event.question);
-    emit(state);
+    emit(QuizCreationState(state.quiz));
   }
 }
 

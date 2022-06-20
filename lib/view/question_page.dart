@@ -127,8 +127,10 @@ class _AnswerForm extends StatelessWidget {
             }),
         Expanded(
             child: TextField(
-                onChanged: (text) => QuestionCreationTextAnswerChanged(
-                    answerId: answer.id, newText: text)))
+                onChanged: (text) =>
+                    BlocProvider.of<QuestionCreationBloc>(context).add(
+                        QuestionCreationTextAnswerChanged(
+                            answerId: answer.id, newText: text))))
       ],
     );
   }
