@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:unotest/domain/model/question.dart';
 import 'package:unotest/domain/model/quiz.dart';
 
 class QuizCreationBloc extends Bloc<QuizCreationEvent, QuizCreationState> {
@@ -7,10 +8,11 @@ class QuizCreationBloc extends Bloc<QuizCreationEvent, QuizCreationState> {
     on<QuizCreationTitleEntered>(_updateTitle);
     on<QuizCreationDescriptionEntered>(_updateDescription);
     on<QuizCreationQuestionAdded>(_addQuestion);
+    on<QuizCreationQuestionSaved>(_saveNewQuestion);
   }
 
   void _updateTitle(QuizCreationTitleEntered event, Emitter emit) {
-    final newDescription = event.title.trim();
+    final newTitle = event.title.trim();
   }
 
   void _updateDescription(QuizCreationDescriptionEntered event, Emitter emit) {
@@ -19,6 +21,11 @@ class QuizCreationBloc extends Bloc<QuizCreationEvent, QuizCreationState> {
 
   void _addQuestion(QuizCreationQuestionAdded event, Emitter emit) {
     emit(QuizCreationOpenNew(Quiz.empty()));
+  }
+
+  void _saveNewQuestion(QuizCreationQuestionSaved event, Emitter emit) {
+    state.quiz.questions.add(event.question);
+    emit(state);
   }
 }
 
@@ -45,6 +52,15 @@ class QuizCreationDescriptionEntered extends QuizCreationEvent {
 class QuizCreationQuestionAdded extends QuizCreationEvent {
   @override
   List<Object?> get props => [];
+}
+
+class QuizCreationQuestionSaved extends QuizCreationEvent {
+  final Question question;
+
+  QuizCreationQuestionSaved(this.question);
+
+  @override
+  List<Object?> get props => [question];
 }
 
 class QuizCreationState extends Equatable {

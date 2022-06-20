@@ -5,30 +5,28 @@ import 'package:unotest/view/question_page.dart';
 
 class MainPage extends StatelessWidget {
   static const String routeName = '/main_page';
+
   const MainPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => QuizCreationBloc(),
-      child: SafeArea(
-          child: Scaffold(
-              body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Text('Title'),
-          SizedBox(height: 10),
-          TextField(),
-          SizedBox(height: 10),
-          Text('Description (optional)'),
-          SizedBox(height: 10),
-          TextField(),
-          SizedBox(height: 10),
-          _Questions()
-        ],
-      ))),
-    );
+    return SafeArea(
+        child: Scaffold(
+            body: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: const [
+        Text('Title'),
+        SizedBox(height: 10),
+        TextField(),
+        SizedBox(height: 10),
+        Text('Description (optional)'),
+        SizedBox(height: 10),
+        TextField(),
+        SizedBox(height: 10),
+        _Questions()
+      ],
+    )));
   }
 }
 
@@ -40,7 +38,7 @@ class _Questions extends StatelessWidget {
     return Flexible(
       child: BlocListener<QuizCreationBloc, QuizCreationState>(
         listener: (context, state) {
-          if(state is QuizCreationOpenNew) {
+          if (state is QuizCreationOpenNew) {
             Navigator.of(context).pushNamed(QuestionPage.routeName);
           }
         },
@@ -63,9 +61,10 @@ class _QuestionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      key: GlobalKey(),
-      child: Text('New question'),
+    return Row(
+      children: [
+        Text('New question'),
+      ],
     );
   }
 }
@@ -75,6 +74,9 @@ class _AddQuestionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(onPressed: () => context.read<QuizCreationBloc>().add(QuizCreationQuestionAdded()), child: const Text('Add question'));
+    return ElevatedButton(
+        onPressed: () =>
+            context.read<QuizCreationBloc>().add(QuizCreationQuestionAdded()),
+        child: const Text('Add question'));
   }
 }

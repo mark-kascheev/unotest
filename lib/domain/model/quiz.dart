@@ -1,5 +1,7 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:unotest/domain/model/question.dart';
 
+@freezed
 class Quiz {
   final String id;
   final String title;
@@ -16,10 +18,7 @@ class Quiz {
     id = '',
     title = '',
     description = '',
-    questions = [];
-
-  // @override
-  // List<Object?> get props => [title, description, questions];
+    questions = List.empty(growable: true);
 }
 
 extension QuizUtils on Quiz {

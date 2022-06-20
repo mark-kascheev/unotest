@@ -1,90 +1,119 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unotest/domain/model/answer.dart';
 import 'package:unotest/domain/model/question.dart';
 
 class QuestionCreationBloc
     extends Bloc<QuestionCreationEvent, QuestionCreationState> {
-  QuestionCreationBloc()
-      : super(QuestionCreationState(Question.empty())) {
-    on<QuestionCreationTextEntered>(_updateQuestionText);
+  QuestionCreationBloc() : super(QuestionCreationState(Question.empty())) {
+    on<QuestionCreationStatementEntered>(_updateQuestionText);
     on<QuestionCreationAnswerAdded>(_addNewAnswer);
     on<QuestionCreationAnswerChanged>(_checkCorrectness);
     on<QuestionCreationTextAnswerChanged>(_updateAnswerText);
-
+    on<QuestionCreationSaved>(_validateQuestion);
   }
 
-  void _updateQuestionText(QuestionCreationTextEntered event, Emitter emit) {
+  void _updateQuestionText(QuestionCreationStatementEntered event, Emitter emit) {
     emit(QuestionCreationState(state.question.copyWith(statement: event.text)));
   }
 
   void _addNewAnswer(QuestionCreationAnswerAdded event, Emitter emit) {
-    final answers = state.question.answers;
-    answers.add(Answer.empty());
-    emit(QuestionCreationState(state.question.copyWith(answers: answers)));
+    state.question.answers.add(Answer.empty());
+    emit(QuestionCreationState(state.question));
   }
 
   void _checkCorrectness(QuestionCreationAnswerChanged event, Emitter emit) {
     final answerIsCorrect = event.isCorrect;
-    if(answerIsCorrect) {
+    if (answerIsCorrect) {
       state.question.correctAnswersId.add(event.answerId);
     } else {
       state.question.correctAnswersId.remove(event.answerId);
     }
-    emit(state);
+    emit(QuestionCreationState(state.question));
   }
 
-  void _updateAnswerText(QuestionCreationTextAnswerChanged event, Emitter emit) {
-    for(var answer in state.question.answers) {
-      if(answer.id == event.answerId) {
+  void _updateAnswerText(
+      QuestionCreationTextAnswerChanged event, Emitter emit) {
+    for (var answer in state.question.answers) {
+      if (answer.id == event.answerId) {
         answer.copyWith(text: event.newText);
       }
     }
-    emit(state);
+    emit(QuestionCreationState(state.question));
+  }
+
+  void _validateQuestion(QuestionCreationSaved event, Emitter emit) {
+    final errorList = <QuestionError>[];
+    final question = state.question;
+
+    if (question.statement.isEmpty) {
+      errorList.add(QuestionError.missingStatement);
+    }
+    if (question.answers.isEmpty) {
+      errorList.add(QuestionError.emptyAnswers);
+    } else if (question.correctAnswersId.isEmpty) {
+      errorList.add(QuestionError.noOneCorrectAnswer);
+    }
+    if (findEmptyAnswerContent()) {
+      errorList.add(QuestionError.someAnswerWithOutContent);
+    }
+
+    emit(errorList.isNotEmpty
+        ? QuestionCreationSaveFailure(errorList, question)
+        : QuestionCreationSaveSuccess(question));
+  }
+
+  bool findEmptyAnswerContent() {
+    return state.question.answers.any((answer) => answer.text.isEmpty);
   }
 }
 
-abstract class QuestionCreationEvent extends Equatable {}
+enum QuestionError {
+  missingStatement,
+  emptyAnswers,
+  noOneCorrectAnswer,
+  someAnswerWithOutContent
+}
 
-class QuestionCreationTextEntered extends QuestionCreationEvent {
+abstract class QuestionCreationEvent {}
+
+class QuestionCreationStatementEntered extends QuestionCreationEvent {
   final String text;
 
-  QuestionCreationTextEntered(this.text);
-
-  @override
-  List<Object?> get props => [text];
+  QuestionCreationStatementEntered(this.text);
 }
 
-class QuestionCreationAnswerAdded extends QuestionCreationEvent {
-  @override
-  List<Object?> get props => [];
-}
+class QuestionCreationAnswerAdded extends QuestionCreationEvent {}
 
 class QuestionCreationTextAnswerChanged extends QuestionCreationEvent {
   final String answerId;
   final String newText;
 
-  QuestionCreationTextAnswerChanged({required this.answerId, required this.newText});
-
-  @override
-  List<Object?> get props => [newText];
+  QuestionCreationTextAnswerChanged(
+      {required this.answerId, required this.newText});
 }
 
 class QuestionCreationAnswerChanged extends QuestionCreationEvent {
   final String answerId;
   final bool isCorrect;
 
-  QuestionCreationAnswerChanged({required this.answerId, required this.isCorrect});
-
-  @override
-  List<Object?> get props => [isCorrect];
+  QuestionCreationAnswerChanged(
+      {required this.answerId, required this.isCorrect});
 }
 
-class QuestionCreationState extends Equatable {
+class QuestionCreationSaved extends QuestionCreationEvent {}
+
+class QuestionCreationState {
   final Question question;
 
   const QuestionCreationState(this.question);
+}
 
-  @override
-  List<Object?> get props => [question];
+class QuestionCreationSaveSuccess extends QuestionCreationState {
+  QuestionCreationSaveSuccess(super.question);
+}
+
+class QuestionCreationSaveFailure extends QuestionCreationState {
+  final List<QuestionError> errors;
+
+  QuestionCreationSaveFailure(this.errors, super.question);
 }
