@@ -3,16 +3,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unotest/bloc/question_creation_bloc.dart';
 import 'package:unotest/bloc/quiz_creation_bloc.dart';
 import 'package:unotest/domain/model/answer.dart';
+import 'package:unotest/domain/model/question.dart';
 
 class QuestionPage extends StatelessWidget {
   static const String routeName = '/question_page';
 
-  const QuestionPage({Key? key}) : super(key: key);
+  final Question question;
+
+  const QuestionPage(this.question, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (BuildContext context) => QuestionCreationBloc(),
+      create: (BuildContext context) => QuestionCreationBloc(question),
       child: SafeArea(
           child: Scaffold(
               appBar: AppBar(
@@ -35,8 +38,8 @@ class QuestionPage extends StatelessWidget {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        _QuestionText(),
+                      children: [
+                        _QuestionText(question.statement),
                         SizedBox(height: 10),
                         _Errors(),
                         _AddAnswerButton(),
@@ -60,12 +63,28 @@ class _SaveButton extends StatelessWidget {
   }
 }
 
-class _QuestionText extends StatelessWidget {
-  const _QuestionText({Key? key}) : super(key: key);
+class _QuestionText extends StatefulWidget {
+  final String statement;
+
+  const _QuestionText(this.statement, {Key? key}) : super(key: key);
+
+  @override
+  State<_QuestionText> createState() => _QuestionTextState();
+}
+
+class _QuestionTextState extends State<_QuestionText> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    _controller.text = widget.statement;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: _controller,
       onChanged: (statement) => BlocProvider.of<QuestionCreationBloc>(context)
           .add(QuestionCreationStatementEntered(statement)),
     );
@@ -105,7 +124,7 @@ class _AddAnswerButton extends StatelessWidget {
   }
 }
 
-class _AnswerForm extends StatelessWidget {
+class _AnswerForm extends StatefulWidget {
   final Answer answer;
   final bool isCorrect;
 
@@ -113,22 +132,38 @@ class _AnswerForm extends StatelessWidget {
       : super(key: key);
 
   @override
+  State<_AnswerForm> createState() => _AnswerFormState();
+}
+
+class _AnswerFormState extends State<_AnswerForm> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    _controller.text = widget.answer.text;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Checkbox(
-            value: isCorrect,
+            value: widget.isCorrect,
             onChanged: (value) {
               if (value != null) {
                 BlocProvider.of<QuestionCreationBloc>(context).add(
                     QuestionCreationAnswerChanged(
-                        answerId: answer.id, isCorrect: value));
+                        answerId: widget.answer.id, isCorrect: value));
               }
             }),
         Expanded(
             child: TextField(
-                onChanged: (text) => QuestionCreationTextAnswerChanged(
-                    answerId: answer.id, newText: text)))
+                controller: _controller,
+                onChanged: (text) =>
+                    BlocProvider.of<QuestionCreationBloc>(context).add(
+                        QuestionCreationTextAnswerChanged(
+                            answerId: widget.answer.id, newText: text))))
       ],
     );
   }

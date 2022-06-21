@@ -4,7 +4,7 @@ import 'package:unotest/domain/model/question.dart';
 
 class QuestionCreationBloc
     extends Bloc<QuestionCreationEvent, QuestionCreationState> {
-  QuestionCreationBloc() : super(QuestionCreationState(Question.empty())) {
+  QuestionCreationBloc(Question question) : super(QuestionCreationState(question)) {
     on<QuestionCreationStatementEntered>(_updateQuestionText);
     on<QuestionCreationAnswerAdded>(_addNewAnswer);
     on<QuestionCreationAnswerChanged>(_checkCorrectness);
@@ -12,7 +12,8 @@ class QuestionCreationBloc
     on<QuestionCreationSaved>(_validateQuestion);
   }
 
-  void _updateQuestionText(QuestionCreationStatementEntered event, Emitter emit) {
+  void _updateQuestionText(
+      QuestionCreationStatementEntered event, Emitter emit) {
     emit(QuestionCreationState(state.question.copyWith(statement: event.text)));
   }
 
@@ -33,9 +34,11 @@ class QuestionCreationBloc
 
   void _updateAnswerText(
       QuestionCreationTextAnswerChanged event, Emitter emit) {
-    for (var answer in state.question.answers) {
+    final answers = state.question.answers;
+    for (var i = 0; i < answers.length; i++) {
+      final answer = answers[i];
       if (answer.id == event.answerId) {
-        answer.copyWith(text: event.newText);
+        answers[i] = answer.copyWith(text: event.newText);
       }
     }
     emit(QuestionCreationState(state.question));
@@ -48,7 +51,7 @@ class QuestionCreationBloc
     if (question.statement.isEmpty) {
       errorList.add(QuestionError.missingStatement);
     }
-    if (question.answers.isEmpty) {
+    if (question.answers.length < 2) {
       errorList.add(QuestionError.emptyAnswers);
     } else if (question.correctAnswersId.isEmpty) {
       errorList.add(QuestionError.noOneCorrectAnswer);

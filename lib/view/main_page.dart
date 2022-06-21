@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unotest/bloc/quiz_creation_bloc.dart';
+import 'package:unotest/domain/model/question.dart';
 import 'package:unotest/view/question_page.dart';
 
 class MainPage extends StatelessWidget {
@@ -41,12 +42,15 @@ class _Questions extends StatelessWidget {
           if (state is QuizCreationOpenNew) {
             Navigator.of(context).pushNamed(QuestionPage.routeName);
           }
+          if (state is QuizCreationEditQuestion) {
+            Navigator.of(context).pushNamed(QuestionPage.routeName, arguments: state.question);
+          }
         },
         child: BlocBuilder<QuizCreationBloc, QuizCreationState>(
             builder: (context, state) {
           return ListView(
             children: [
-              ...state.quiz.questions.map((e) => _QuestionItem()).toList(),
+              ...state.quiz.questions.map((question) => _QuestionItem(question)).toList(),
               const _AddQuestionButton()
             ],
           );
@@ -57,14 +61,23 @@ class _Questions extends StatelessWidget {
 }
 
 class _QuestionItem extends StatelessWidget {
-  const _QuestionItem({Key? key}) : super(key: key);
+  final Question question;
+  const _QuestionItem(this.question);
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text('New question'),
-      ],
+    return GestureDetector(
+      onTap: () {
+        BlocProvider.of<QuizCreationBloc>(context).add(QuizCreationQuestionEdited(question));
+      },
+      child: SizedBox(
+        height: 30,
+        child: Row(
+          children: [
+            Text('${question.statement}|||${question.id}'),
+          ],
+        ),
+      ),
     );
   }
 }

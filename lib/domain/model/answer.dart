@@ -6,5 +6,6 @@ part 'answer.freezed.dart';
 class Answer with _$Answer {
   const factory Answer({required String id, required String text}) = _Answer;
 
-  factory Answer.empty() => const _Answer(id: '', text: '');
+  factory Answer.empty() =>
+      _Answer(id: DateTime.now().millisecondsSinceEpoch.toString(), text: '');
 }

@@ -16,7 +16,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$Question {
-  String? get id => throw _privateConstructorUsedError;
+  String get id => throw _privateConstructorUsedError;
   List<String>? get userAnswersId => throw _privateConstructorUsedError;
   String get statement => throw _privateConstructorUsedError;
   List<Answer> get answers => throw _privateConstructorUsedError;
@@ -32,7 +32,7 @@ abstract class $QuestionCopyWith<$Res> {
   factory $QuestionCopyWith(Question value, $Res Function(Question) then) =
       _$QuestionCopyWithImpl<$Res>;
   $Res call(
-      {String? id,
+      {String id,
       List<String>? userAnswersId,
       String statement,
       List<Answer> answers,
@@ -59,7 +59,7 @@ class _$QuestionCopyWithImpl<$Res> implements $QuestionCopyWith<$Res> {
       id: id == freezed
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as String,
       userAnswersId: userAnswersId == freezed
           ? _value.userAnswersId
           : userAnswersId // ignore: cast_nullable_to_non_nullable
@@ -87,7 +87,7 @@ abstract class _$$_QuestionCopyWith<$Res> implements $QuestionCopyWith<$Res> {
       __$$_QuestionCopyWithImpl<$Res>;
   @override
   $Res call(
-      {String? id,
+      {String id,
       List<String>? userAnswersId,
       String statement,
       List<Answer> answers,
@@ -116,7 +116,7 @@ class __$$_QuestionCopyWithImpl<$Res> extends _$QuestionCopyWithImpl<$Res>
       id: id == freezed
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as String,
       userAnswersId: userAnswersId == freezed
           ? _value.userAnswersId
           : userAnswersId // ignore: cast_nullable_to_non_nullable
@@ -141,14 +141,14 @@ class __$$_QuestionCopyWithImpl<$Res> extends _$QuestionCopyWithImpl<$Res>
 
 class _$_Question with DiagnosticableTreeMixin implements _Question {
   const _$_Question(
-      {this.id,
+      {required this.id,
       this.userAnswersId,
       required this.statement,
       required this.answers,
       required this.correctAnswersId});
 
   @override
-  final String? id;
+  final String id;
   @override
   final List<String>? userAnswersId;
   @override
@@ -206,14 +206,14 @@ class _$_Question with DiagnosticableTreeMixin implements _Question {
 
 abstract class _Question implements Question {
   const factory _Question(
-      {final String? id,
+      {required final String id,
       final List<String>? userAnswersId,
       required final String statement,
       required final List<Answer> answers,
       required final List<String> correctAnswersId}) = _$_Question;
 
   @override
-  String? get id => throw _privateConstructorUsedError;
+  String get id => throw _privateConstructorUsedError;
   @override
   List<String>? get userAnswersId => throw _privateConstructorUsedError;
   @override
