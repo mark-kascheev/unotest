@@ -8,7 +8,8 @@ class QuizCreationBloc extends Bloc<QuizCreationEvent, QuizCreationState> {
     on<QuizCreationTitleEntered>(_updateTitle);
     on<QuizCreationDescriptionEntered>(_updateDescription);
     on<QuizCreationQuestionAdded>(_addQuestion);
-    on<QuizCreationQuestionSaved>(_saveNewQuestion);
+    on<QuizCreationQuestionSaved>(_saveQuestion);
+    on<QuizCreationQuestionEdited>(_editQuestion);
   }
 
   void _updateTitle(QuizCreationTitleEntered event, Emitter emit) {
@@ -20,12 +21,25 @@ class QuizCreationBloc extends Bloc<QuizCreationEvent, QuizCreationState> {
   }
 
   void _addQuestion(QuizCreationQuestionAdded event, Emitter emit) {
-    emit(QuizCreationOpenNew(Quiz.empty()));
+    emit(QuizCreationOpenNew(state.quiz));
   }
 
-  void _saveNewQuestion(QuizCreationQuestionSaved event, Emitter emit) {
-    state.quiz.questions.add(event.question);
+  void _saveQuestion(QuizCreationQuestionSaved event, Emitter emit) {
+    final questions = state.quiz.questions;
+    final editedQuestion = event.question;
+
+    if (questions.contains(editedQuestion)) {
+      final index = questions.indexOf(editedQuestion);
+      questions[index] = editedQuestion;
+    } else {
+      questions.add(event.question);
+    }
     emit(QuizCreationState(state.quiz));
+  }
+
+  void _editQuestion(QuizCreationQuestionEdited event, Emitter emit) {
+    emit(QuizCreationEditQuestion(
+        quiz: state.quiz, question: event.editableQuestion));
   }
 }
 
@@ -54,6 +68,15 @@ class QuizCreationQuestionAdded extends QuizCreationEvent {
   List<Object?> get props => [];
 }
 
+class QuizCreationQuestionEdited extends QuizCreationEvent {
+  final Question editableQuestion;
+
+  QuizCreationQuestionEdited(this.editableQuestion);
+
+  @override
+  List<Object?> get props => [editableQuestion];
+}
+
 class QuizCreationQuestionSaved extends QuizCreationEvent {
   final Question question;
 
@@ -73,8 +96,18 @@ class QuizCreationState extends Equatable {
 }
 
 class QuizCreationOpenNew extends QuizCreationState {
-  const QuizCreationOpenNew(Quiz quiz) : super(quiz);
+  const QuizCreationOpenNew(super.quiz);
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [quiz];
+}
+
+class QuizCreationEditQuestion extends QuizCreationState {
+  final Question question;
+
+  const QuizCreationEditQuestion({required this.question, required Quiz quiz})
+      : super(quiz);
+
+  @override
+  List<Object?> get props => [quiz];
 }

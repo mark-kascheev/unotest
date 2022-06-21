@@ -4,7 +4,7 @@ import 'package:unotest/domain/model/question.dart';
 
 class QuestionCreationBloc
     extends Bloc<QuestionCreationEvent, QuestionCreationState> {
-  QuestionCreationBloc() : super(QuestionCreationState(Question.empty())) {
+  QuestionCreationBloc(Question question) : super(QuestionCreationState(question)) {
     on<QuestionCreationStatementEntered>(_updateQuestionText);
     on<QuestionCreationAnswerAdded>(_addNewAnswer);
     on<QuestionCreationAnswerChanged>(_checkCorrectness);

@@ -42,6 +42,9 @@ class _Questions extends StatelessWidget {
           if (state is QuizCreationOpenNew) {
             Navigator.of(context).pushNamed(QuestionPage.routeName);
           }
+          if (state is QuizCreationEditQuestion) {
+            Navigator.of(context).pushNamed(QuestionPage.routeName, arguments: state.question);
+          }
         },
         child: BlocBuilder<QuizCreationBloc, QuizCreationState>(
             builder: (context, state) {
@@ -63,10 +66,18 @@ class _QuestionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text('${question.statement}|||${question.id}'),
-      ],
+    return GestureDetector(
+      onTap: () {
+        BlocProvider.of<QuizCreationBloc>(context).add(QuizCreationQuestionEdited(question));
+      },
+      child: SizedBox(
+        height: 30,
+        child: Row(
+          children: [
+            Text('${question.statement}|||${question.id}'),
+          ],
+        ),
+      ),
     );
   }
 }

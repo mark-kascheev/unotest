@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 part 'quiz.freezed.dart';
 
-@freezed
+@Freezed(makeCollectionsUnmodifiable: false)
 class Quiz with _$Quiz{
   const factory Quiz(
       {required final String id,

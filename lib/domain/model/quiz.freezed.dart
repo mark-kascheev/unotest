@@ -108,7 +108,7 @@ class __$$_QuizCopyWithImpl<$Res> extends _$QuizCopyWithImpl<$Res>
           : description // ignore: cast_nullable_to_non_nullable
               as String,
       questions: questions == freezed
-          ? _value._questions
+          ? _value.questions
           : questions // ignore: cast_nullable_to_non_nullable
               as List<Question>,
     ));
@@ -122,8 +122,7 @@ class _$_Quiz with DiagnosticableTreeMixin implements _Quiz {
       {required this.id,
       required this.title,
       required this.description,
-      required final List<Question> questions})
-      : _questions = questions;
+      required this.questions});
 
   @override
   final String id;
@@ -131,12 +130,8 @@ class _$_Quiz with DiagnosticableTreeMixin implements _Quiz {
   final String title;
   @override
   final String description;
-  final List<Question> _questions;
   @override
-  List<Question> get questions {
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_questions);
-  }
+  final List<Question> questions;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
@@ -163,8 +158,7 @@ class _$_Quiz with DiagnosticableTreeMixin implements _Quiz {
             const DeepCollectionEquality().equals(other.title, title) &&
             const DeepCollectionEquality()
                 .equals(other.description, description) &&
-            const DeepCollectionEquality()
-                .equals(other._questions, _questions));
+            const DeepCollectionEquality().equals(other.questions, questions));
   }
 
   @override
@@ -173,7 +167,7 @@ class _$_Quiz with DiagnosticableTreeMixin implements _Quiz {
       const DeepCollectionEquality().hash(id),
       const DeepCollectionEquality().hash(title),
       const DeepCollectionEquality().hash(description),
-      const DeepCollectionEquality().hash(_questions));
+      const DeepCollectionEquality().hash(questions));
 
   @JsonKey(ignore: true)
   @override
