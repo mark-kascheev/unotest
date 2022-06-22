@@ -96,9 +96,14 @@ class _Answers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(child:
-        BlocBuilder<QuestionCreationBloc, QuestionCreationState>(
-            builder: (context, state) {
+    return Flexible(
+        child: BlocBuilder<QuestionCreationBloc, QuestionCreationState>(
+            buildWhen: (previous, current) {
+      if (previous.question.answers != current.question.answers &&
+          previous.question.correctAnswersId !=
+              current.question.correctAnswersId) return true;
+      return false;
+    }, builder: (context, state) {
       final correctAnswers = state.question.correctAnswersId;
       final answers = state.question.answers;
       return ListView.builder(
