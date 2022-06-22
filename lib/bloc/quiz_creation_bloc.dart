@@ -14,10 +14,12 @@ class QuizCreationBloc extends Bloc<QuizCreationEvent, QuizCreationState> {
 
   void _updateTitle(QuizCreationTitleEntered event, Emitter emit) {
     final newTitle = event.title.trim();
+    emit(QuizCreationState(state.quiz.copyWith(title: newTitle)));
   }
 
   void _updateDescription(QuizCreationDescriptionEntered event, Emitter emit) {
     final newDescription = event.description.trim();
+    emit(QuizCreationState(state.quiz.copyWith(description: newDescription)));
   }
 
   void _addQuestion(QuizCreationQuestionAdded event, Emitter emit) {
@@ -25,16 +27,16 @@ class QuizCreationBloc extends Bloc<QuizCreationEvent, QuizCreationState> {
   }
 
   void _saveQuestion(QuizCreationQuestionSaved event, Emitter emit) {
-    final questions = state.quiz.questions;
+    final questions = List<Question>.from(state.quiz.questions);
     final editedQuestion = event.question;
 
     if (questions.contains(editedQuestion)) {
       final index = questions.indexOf(editedQuestion);
       questions[index] = editedQuestion;
     } else {
-      questions.add(event.question);
+      questions.add(editedQuestion);
     }
-    emit(QuizCreationState(state.quiz));
+    emit(QuizCreationState(state.quiz.copyWith(questions: questions)));
   }
 
   void _editQuestion(QuizCreationQuestionEdited event, Emitter emit) {
@@ -86,20 +88,14 @@ class QuizCreationQuestionSaved extends QuizCreationEvent {
   List<Object?> get props => [question];
 }
 
-class QuizCreationState extends Equatable {
+class QuizCreationState {
   final Quiz quiz;
 
   const QuizCreationState(this.quiz);
-
-  @override
-  List<Object?> get props => [quiz];
 }
 
 class QuizCreationOpenNew extends QuizCreationState {
   const QuizCreationOpenNew(super.quiz);
-
-  @override
-  List<Object?> get props => [quiz];
 }
 
 class QuizCreationEditQuestion extends QuizCreationState {
@@ -107,7 +103,4 @@ class QuizCreationEditQuestion extends QuizCreationState {
 
   const QuizCreationEditQuestion({required this.question, required Quiz quiz})
       : super(quiz);
-
-  @override
-  List<Object?> get props => [quiz];
 }

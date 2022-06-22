@@ -1,10 +1,12 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unotest/domain/model/answer.dart';
 import 'package:unotest/domain/model/question.dart';
 
 class QuestionCreationBloc
     extends Bloc<QuestionCreationEvent, QuestionCreationState> {
-  QuestionCreationBloc(Question question) : super(QuestionCreationState(question)) {
+  QuestionCreationBloc(Question question)
+      : super(QuestionCreationState(question)) {
     on<QuestionCreationStatementEntered>(_updateQuestionText);
     on<QuestionCreationAnswerAdded>(_addNewAnswer);
     on<QuestionCreationAnswerChanged>(_checkCorrectness);
@@ -18,8 +20,9 @@ class QuestionCreationBloc
   }
 
   void _addNewAnswer(QuestionCreationAnswerAdded event, Emitter emit) {
-    state.question.answers.add(Answer.empty());
-    emit(QuestionCreationState(state.question));
+    final List<Answer> answers = List.from(state.question.answers);
+    answers.add(Answer.empty());
+    emit(QuestionCreationState(state.question.copyWith(answers: answers)));
   }
 
   void _checkCorrectness(QuestionCreationAnswerChanged event, Emitter emit) {
@@ -34,14 +37,14 @@ class QuestionCreationBloc
 
   void _updateAnswerText(
       QuestionCreationTextAnswerChanged event, Emitter emit) {
-    final answers = state.question.answers;
+    final List<Answer> answers = List.from(state.question.answers);
     for (var i = 0; i < answers.length; i++) {
       final answer = answers[i];
       if (answer.id == event.answerId) {
         answers[i] = answer.copyWith(text: event.newText);
       }
     }
-    emit(QuestionCreationState(state.question));
+    emit(QuestionCreationState(state.question.copyWith(answers: answers)));
   }
 
   void _validateQuestion(QuestionCreationSaved event, Emitter emit) {
@@ -56,7 +59,7 @@ class QuestionCreationBloc
     } else if (question.correctAnswersId.isEmpty) {
       errorList.add(QuestionError.noOneCorrectAnswer);
     }
-    if (findEmptyAnswerContent()) {
+    if (_findEmptyAnswerContent()) {
       errorList.add(QuestionError.someAnswerWithOutContent);
     }
 
@@ -65,7 +68,7 @@ class QuestionCreationBloc
         : QuestionCreationSaveSuccess(question));
   }
 
-  bool findEmptyAnswerContent() {
+  bool _findEmptyAnswerContent() {
     return state.question.answers.any((answer) => answer.text.isEmpty);
   }
 }
@@ -105,18 +108,24 @@ class QuestionCreationAnswerChanged extends QuestionCreationEvent {
 
 class QuestionCreationSaved extends QuestionCreationEvent {}
 
-class QuestionCreationState {
+class QuestionCreationState extends Equatable {
   final Question question;
 
   const QuestionCreationState(this.question);
+
+  @override
+  List<Object?> get props => [question];
 }
 
 class QuestionCreationSaveSuccess extends QuestionCreationState {
-  QuestionCreationSaveSuccess(super.question);
+  const QuestionCreationSaveSuccess(super.question);
 }
 
 class QuestionCreationSaveFailure extends QuestionCreationState {
   final List<QuestionError> errors;
 
-  QuestionCreationSaveFailure(this.errors, super.question);
+  const QuestionCreationSaveFailure(this.errors, super.question);
+
+  @override
+  List<Object?> get props => [question, errors];
 }
