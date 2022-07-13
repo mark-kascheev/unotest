@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:unotest/bloc/quiz_creation_bloc.dart';
-import 'package:unotest/domain/model/question.dart';
-import 'package:unotest/view/question_page.dart';
+import 'package:unotest/bloc/quizzes_manager_bloc.dart';
+import 'package:unotest/domain/model/quiz.dart';
+import 'package:unotest/view/quiz_page.dart';
 
 class MainPage extends StatelessWidget {
   static const String routeName = '/main_page';
@@ -11,85 +11,42 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
-            body: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: const [
-        Text('Title'),
-        SizedBox(height: 10),
-        TextField(),
-        SizedBox(height: 10),
-        Text('Description (optional)'),
-        SizedBox(height: 10),
-        TextField(),
-        SizedBox(height: 10),
-        _Questions()
-      ],
-    )));
-  }
-}
-
-class _Questions extends StatelessWidget {
-  const _Questions({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Flexible(
-      child: BlocListener<QuizCreationBloc, QuizCreationState>(
-        listener: (context, state) {
-          if (state is QuizCreationOpenNew) {
-            Navigator.of(context).pushNamed(QuestionPage.routeName);
-          }
-          if (state is QuizCreationEditQuestion) {
-            Navigator.of(context).pushNamed(QuestionPage.routeName, arguments: state.question);
-          }
-        },
-        child: BlocBuilder<QuizCreationBloc, QuizCreationState>(
-            builder: (context, state) {
-          return ListView(
-            children: [
-              ...state.quiz.questions.map((question) => _QuestionItem(question)).toList(),
-              const _AddQuestionButton()
-            ],
-          );
-        }),
-      ),
+    return BlocListener<QuizzesManagerBloc, QuizzesManagerState>(
+      listener: (context, state) {
+        if(state is QuizzesManagerOpenQuiz) {
+          Navigator.pushNamed(context, QuizPage.routeName, arguments: state.quiz);
+        }
+      },
+      child: SafeArea(child: Scaffold(body:
+          BlocBuilder<QuizzesManagerBloc, QuizzesManagerState>(
+              builder: (context, state) {
+        if (state is QuizzesManagerInitial) {
+          final quizzes = state.quizzes;
+          return ListView.builder(
+              itemCount: quizzes.length,
+              itemBuilder: (context, index) => _QuizItem(quizzes[index]));
+        }
+        return const SizedBox();
+      }))),
     );
   }
 }
 
-class _QuestionItem extends StatelessWidget {
-  final Question question;
-  const _QuestionItem(this.question);
+class _QuizItem extends StatelessWidget {
+  const _QuizItem(this.quiz, {Key? key}) : super(key: key);
+
+  final Quiz quiz;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        BlocProvider.of<QuizCreationBloc>(context).add(QuizCreationQuestionEdited(question));
-      },
-      child: SizedBox(
-        height: 30,
-        child: Row(
-          children: [
-            Text('${question.statement}|||${question.id}'),
-          ],
-        ),
-      ),
+        onTap: () {
+          BlocProvider.of<QuizzesManagerBloc>(context).add(QuizzesManagerQuizOpened(quiz));
+        },
+        child: SizedBox(
+            height: 50,
+            child: Text(quiz.title)
+        )
     );
-  }
-}
-
-class _AddQuestionButton extends StatelessWidget {
-  const _AddQuestionButton({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-        onPressed: () =>
-            context.read<QuizCreationBloc>().add(QuizCreationQuestionAdded()),
-        child: const Text('Add question'));
   }
 }
