@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:unotest/bloc/quiz_creation_bloc.dart';
+import 'package:unotest/bloc/quizzes_manager_bloc.dart';
 import 'package:unotest/view/main_page.dart';
 import 'package:unotest/view/quiz_router.dart';
 
@@ -13,12 +14,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => QuizCreationBloc(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => QuizCreationBloc(),
+        ),
+        BlocProvider(
+          create: (context) => QuizzesManagerBloc(),
+        ),
+      ],
       child: const MaterialApp(
         onGenerateRoute: QuizRouter.onRoute,
         initialRoute: MainPage.routeName,
-      ),
+      )
     );
   }
 }
